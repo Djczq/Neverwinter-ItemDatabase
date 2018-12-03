@@ -16,11 +16,11 @@ CREATE TABLE professions(
 sqlite3 $1 "
 CREATE TABLE professions_translation(
 	id integer not null primary key,
-	professionID integer,
+	profession integer,
 	name varchar(100),
-	lang_code varchar(5),
-	foreign key (lang_code) references languages(code),
-	foreign key (ProfessionID) references professions(id)
+	lang varchar(5),
+	foreign key (lang) references languages(code),
+	foreign key (profession) references professions(id)
 );"
 
 sqlite3 $1 "
@@ -32,7 +32,7 @@ CREATE TABLE items(
 );"
 
 sqlite3 $1 "
-CREATE TABLE Production(
+CREATE TABLE production(
 	id integer not null primary key,
 	item integer,
 	profession integer,
@@ -47,10 +47,10 @@ sqlite3 $1 "
 CREATE TABLE items_translation(
 	id integer not null primary key,
 	item integer,
-	lang_code varchar(5),
+	lang varchar(5),
 	name varchar(100),
 	desc varchar(1),
-	foreign key (lang_code) references languages(code),
+	foreign key (lang) references languages(code),
 	foreign key (item) references items(id)
 );"
 
