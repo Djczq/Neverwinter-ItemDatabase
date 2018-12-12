@@ -26,19 +26,26 @@ CREATE TABLE professions_translation(
 sqlite3 $1 "
 CREATE TABLE items(
 	id integer not null primary key,
-	requiredLevel integer,
 	sellPrice integer,
-	buyPrice integer
+	buyPrice integer,
+	itemLevel integer,
+	requiredLevel integer,
+	refinementPoints integer
 );"
 
 sqlite3 $1 "
 CREATE TABLE production(
 	id integer not null primary key,
 	item integer,
+	quantity integer,
+	level integer,
 	profession integer,
 	commission integer,
 	morale integer,
 	time integer,
+	focusMin integer,
+	focusMax integer,
+	proficiency integer,
 	foreign key (item) references items(id),
 	foreign key (profession) references professions(id)
 );"
