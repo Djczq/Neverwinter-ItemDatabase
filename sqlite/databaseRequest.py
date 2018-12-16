@@ -83,3 +83,14 @@ def insertFullItem(conn, item):
             insertProduction(conn, itemId, item.quantity, item.plvl, professionid, item.commission, item.morale, item.time, item.focusMin, item.focusMax, item.proficiency)
 
 
+def insertMaterial(conn, lang, itemName, quantity, materialName):
+    itemId = getItemIdFromTr(conn, lang, itemName)
+    materialId = getItemIdFromTr(conn, lang, materialName)
+    if itemId == None:
+        return None
+    if materialId == None:
+        return -1
+    cur = conn.cursor()
+    req = "insert into materials(item, material, quantity) values ('{}', '{}', '{}')".format(itemId, materialId, quantity)
+    cur.execute(req)
+    return cur.lastrowid

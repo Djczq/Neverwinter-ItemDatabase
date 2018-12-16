@@ -21,5 +21,12 @@ if __name__ == "__main__":
         for it in items:
             print it
             dr.insertFullItem(conn, it)
-        
+        for it in items:
+            if len(it.materials) > 1:
+                for m in it.materials:
+                    r = dr.insertMaterial(conn, it.lang, it.name, m[0], m[1])
+                    if r == None:
+                        print "Item not found"
+                    if r == -1:
+                        print "Material not found : ", m[1]
     

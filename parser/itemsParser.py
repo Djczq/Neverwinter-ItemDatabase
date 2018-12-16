@@ -45,7 +45,7 @@ def processRow(website, row, profession, lang):
         focus = columns[5].string.strip()
     except:
         focus = -1
-        #    print "materials", columns[6].prettify()
+
     try:
         quantity = columns[7].div.contents[0].string.replace('x','').strip()
     except:
@@ -111,8 +111,15 @@ def processRow(website, row, profession, lang):
     else:
         focusMin = -1
         focusMax = -1
+    item = Item.Item(name, lang, svalue, bvalue, itemlvl, reqlvl, rpvalue, quantity, plvl, profession, commission, morale, time, focusMin, focusMax, profeciency)
 
-    return Item.Item(name, lang, svalue, bvalue, itemlvl, reqlvl, rpvalue, quantity, plvl, profession, commission, morale, time, focusMin, focusMax, profeciency)
+    if len(columns[6].contents) > 2:
+        for i in range((len(columns[6].contents)-1)/3):
+            q = columns[6].contents[3*int(i)].replace('x','').replace(',','').strip()
+            n = columns[6].contents[3*int(i)+1]['title']
+            item.addMaterial(q, n)
+
+    return item
 
 def getItemsFromTable(website, table, profession, lang):
     list = []
