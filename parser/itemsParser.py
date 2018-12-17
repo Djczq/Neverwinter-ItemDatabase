@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#pip install requests BeautifulSoup4
+#pip install requests bs4
 
 import requests
 from bs4 import BeautifulSoup
@@ -16,6 +16,52 @@ def htmlToCopper(contents):
         return value
     except:
         return -1
+
+def processItemPage(url):
+    bvalue = 0
+    svalue = 0
+    rpvalue = 0
+    itemlvl = 0
+    reqlvl = 0
+    try:
+        item_page = requests.get(url).text
+        item_html = BeautifulSoup(item_page,"html.parser")
+        trs = item_html.find('div', 'infobox').find_all('tr')
+        for tr in trs:
+            if tr.th.string == None:
+                continue
+            if tr.th.string.strip() == "Buy value:":
+                bvalue = htmlToCopper(tr.td.contents)
+            if tr.th.string.strip() == "Sale value:":
+                svalue = htmlToCopper(tr.td.contents)
+            if tr.th.string.strip() == "Refinement point:":
+                try:
+                    rpvalue = int(tr.td.contents[1].string.strip())
+                except ValueError:
+                    rpvalue = 0
+            if tr.th.string.strip() == "Item level:":
+                try:
+                    itemlvl = int(tr.td.string.strip())
+                except ValueError:
+                    itemlvl = 0
+            if tr.th.string.strip() == "Requires level:":
+                try:
+                    reqlvl = int(tr.td.string.strip())
+                except ValueError:
+                    reqlvl = 0
+    except:
+        bvalue = -1
+        svalue = -1
+        rpvalue = -1
+        itemlvl = -1
+        reqlvl = -1
+    val = []
+    val.append(svalue)
+    val.append(bvalue)
+    val.append(itemlvl)
+    val.append(reqlvl)
+    val.append(rpvalue)
+    return val
 
 def processRow(website, row, profession, lang):
     columns = row.find_all('td')
@@ -61,44 +107,6 @@ def processRow(website, row, profession, lang):
     except:
         time = -1
 
-    bvalue = 0
-    svalue = 0
-    rpvalue = 0
-    itemlvl = 0
-    reqlvl = 0
-    try:
-        item_ref = columns[7].a['href']
-        item_page = requests.get(website + item_ref).text
-        item_html = BeautifulSoup(item_page,"html.parser")
-        trs = item_html.find('div', 'infobox').find_all('tr')
-        for tr in trs:
-            if tr.th.string == None:
-                continue
-            if tr.th.string.strip() == "Buy value:":
-                bvalue = htmlToCopper(tr.td.contents)
-            if tr.th.string.strip() == "Sale value:":
-                svalue = htmlToCopper(tr.td.contents)
-            if tr.th.string.strip() == "Refinement point:":
-                try:
-                    rpvalue = int(tr.td.contents[1].string.strip())
-                except ValueError:
-                    rpvalue = 0
-            if tr.th.string.strip() == "Item level:":
-                try:
-                    itemlvl = int(tr.td.string.strip())
-                except ValueError:
-                    itemlvl = 0
-            if tr.th.string.strip() == "Requires level:":
-                try:
-                    reqlvl = int(tr.td.string.strip())
-                except ValueError:
-                    reqlvl = 0
-    except:
-        bvalue = -1
-        svalue = -1
-        rpvalue = -1
-        itemlvl = -1
-        reqlvl = -1
     if focus != -1:
         try:
             focusMin = int(focus.split('-')[0].strip())
@@ -111,7 +119,10 @@ def processRow(website, row, profession, lang):
     else:
         focusMin = -1
         focusMax = -1
-    item = Item.Item(name, lang, svalue, bvalue, itemlvl, reqlvl, rpvalue, quantity, plvl, profession, commission, morale, time, focusMin, focusMax, profeciency)
+
+    item_ref = columns[7].a['href']
+    infos = processItemPage(website + item_ref)
+    item = Item.Item(name, lang, infos[0], infos[1], infos[2], infos[3], infos[4], quantity, plvl, profession, commission, morale, time, focusMin, focusMax, profeciency)
 
     if len(columns[6].contents) > 2:
         for i in range((len(columns[6].contents)-1)/3):
