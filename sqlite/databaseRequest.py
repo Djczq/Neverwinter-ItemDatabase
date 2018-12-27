@@ -33,13 +33,39 @@ def getItemIdFromTr(conn, lang, name):
     else:
         return int(row[0])
 
-def getItemFromId(conn, id):
+def getItemInfoFromId(conn, id):
     cur = conn.cursor()
     req = "SELECT sellPrice,buyPrice,itemLevel,requiredLevel,refinementPoints FROM items where id=\"{}\"".format(id)
     cur.execute(req)
     row = cur.fetchone()
     return row
 
+def getProfessionInfoFromId(conn, id):
+    cur = conn.cursor()
+    req = "SELECT quantity,level,profession,commission,morale,time,focusMin,focusMax,proficiency FROM production where item=\"{}\"".format(id)
+    cur.execute(req)
+    return cur.fetchall()
+
+def getItemTrFromId(conn, id, lang):
+    cur = conn.cursor()
+    req = "SELECT name FROM items_translation where id=\"{}\" and lang=\"{}\"".format(id, lang)
+    cur.execute(req)
+    row = cur.fetchone()
+    return row
+
+def getProfessionTrFromId(conn, id, lang):
+    cur = conn.cursor()
+    req = "SELECT name FROM professions_translation where profession=\"{}\" and lang=\"{}\"".format(id, lang)
+    cur.execute(req)
+    row = cur.fetchone()
+    return row
+
+def getAllId(conn):
+    cur = conn.cursor()
+    req = "SELECT id FROM items"
+    cur.execute(req)
+    rows = cur.fetchall()
+    return rows
 
 def insertItemTr(conn, itemId, lang, name):
     cur = conn.cursor()
@@ -78,7 +104,7 @@ def insertFullItem(conn, item):
         if item.profession != "":
             insertProduction(conn, itemId, item.quantity, item.plvl, professionid, item.commission, item.morale, item.time, item.focusMin, item.focusMax, item.proficiency)
     else:
-        row = getItemFromId(conn, itemId)
+        row = getItemInfoFromId(conn, itemId)
         if row[0] == item.svalue and row[1] == item.bvalue and row[2] == item.itemlvl and row[3] == item.reqlvl and row[4] == item.rpvalue and item.profession != "":
             insertProduction(conn, itemId, item.quantity, item.plvl, professionid, item.commission, item.morale, item.time, item.focusMin, item.focusMax, item.proficiency)
 
